@@ -1,0 +1,10 @@
+flowchart TD
+    A([User]) --> B[Run summarize script<br/>examples/summarize/run.ts]
+    B --> C[Runtime loads summarizeWorkflow]
+    C --> D{Cache hit?}
+    D -->|Yes| E[Reuse cached summary]
+    D -->|No| F[Call OpenAI (gpt-4.1-mini)<br/>with prompt + schema]
+    F --> G[Get validated summary]
+    E --> H([Return summary to user])
+    G --> H
+    H --> I[[Trace JSONL + cache files<br/>written locally]]

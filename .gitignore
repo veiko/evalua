@@ -5,10 +5,16 @@
 !.yarn/sdks
 !.yarn/versions
 
+.env
+.DS_Store
+
 # Whether you use PnP or not, the node_modules folder is often used to store
 # build artifacts that should be gitignored
 node_modules
 dist
 traces
+cache
 .pnp.cjs
 .pnp.loader.mjs
+*.tsbuildinfo
+examples/**/cache

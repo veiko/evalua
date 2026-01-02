@@ -15,15 +15,20 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/summarize"
   ],
   "scripts": {
     "build": "tsc -b",
     "test": "yarn build"
   },
   "devDependencies": {
+    "@types/node": "^20.17.11",
+    "openai": "^4.85.1",
     "prettier": "^3.7.4",
-    "typescript": "^5.5.4"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "zod": "^3.23.8"
   },
   "packageManager": "yarn@4.9.2"
 }

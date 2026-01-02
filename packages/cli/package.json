@@ -10,6 +10,9 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
+    "@evalua/core": "workspace:*",
+    "@evalua/eval": "workspace:*",
+    "@evalua/llm": "workspace:*",
     "commander": "^12.1.0",
     "zod": "^3.23.8"
   }

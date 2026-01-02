@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "../dist/examples",
+    "rootDir": ".",
+    "paths": {
+      "@evalua/core": ["../packages/core/src"],
+      "@evalua/llm": ["../packages/llm/src"],
+      "@evalua/tools": ["../packages/tools/src"],
+      "@evalua/eval": ["../packages/eval/src"],
+      "@evalua/cli": ["../packages/cli/src"]
+    }
+  },
+  "include": ["./**/*"]
+}

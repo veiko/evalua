@@ -5,6 +5,7 @@
     { "path": "./packages/llm" },
     { "path": "./packages/tools" },
     { "path": "./packages/eval" },
-    { "path": "./packages/cli" }
+    { "path": "./packages/cli" },
+    { "path": "./examples/tsconfig.json" }
   ]
 }

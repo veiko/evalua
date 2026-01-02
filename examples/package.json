@@ -1,0 +1,15 @@
+{
+  "name": "@evalua/examples",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "workflow": "tsx run.ts",
+    "eval": "tsx evals/run.ts"
+  },
+  "devDependencies": {
+    "@evalua/core": "workspace:*",
+    "@evalua/eval": "workspace:*",
+    "tsx": "^4.19.2",
+    "zod": "^3.23.8"
+  }
+}
