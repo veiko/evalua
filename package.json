@@ -1,0 +1,21 @@
+{
+  "name": "evalua",
+  "version": "0.0.1",
+  "description": "Agentic Workflow Framework",
+  "homepage": "https://github.com/veiko/evalua#readme",
+  "bugs": {
+    "url": "https://github.com/veiko/evalua/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/veiko/evalua.git"
+  },
+  "license": "MIT",
+  "author": "Veronica Carrillo Marquez <veikocm@gmail.com>",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "packageManager": "yarn@4.9.2"
+}
