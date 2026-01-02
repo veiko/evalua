@@ -1,4 +1,4 @@
-import { Step, Workflow } from "@evalua/core";
+import { Step, Workflow } from '@evalua/core';
 
 export type Case<I> = {
   id: string;
@@ -20,12 +20,7 @@ export type Score = {
   artifacts?: Record<string, any>;
 };
 
-export type Judge<I, O> = (args: {
-  input: I;
-  output: O;
-  expected?: unknown;
-  trace: any;
-}) => Promise<Score> | Score;
+export type Judge<I, O> = (args: { input: I; output: O; expected?: unknown; trace: any }) => Promise<Score> | Score;
 
 export type EvalSpec<I, O> = {
   name: string;
@@ -95,12 +90,10 @@ export async function runEval<I, O>(
     aggregateSummary[k] = values.reduce((a, b) => a + b, 0) / values.length;
   });
 
-  const passed = Object.entries(spec.thresholds).every(
-    ([metric, threshold]) => {
-      const achieved = aggregateSummary[metric];
-      return achieved !== undefined && achieved >= threshold;
-    }
-  );
+  const passed = Object.entries(spec.thresholds).every(([metric, threshold]) => {
+    const achieved = aggregateSummary[metric];
+    return achieved !== undefined && achieved >= threshold;
+  });
 
   return {
     name: spec.name,

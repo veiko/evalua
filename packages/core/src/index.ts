@@ -1,14 +1,14 @@
-import fs from "fs";
-import path from "path";
-import { randomUUID } from "crypto";
-import { z, ZodTypeAny } from "zod";
+import fs from 'fs';
+import path from 'path';
+import { randomUUID } from 'crypto';
+import { z, ZodTypeAny } from 'zod';
 
 export type RunId = string;
 export type SpanId = string;
 
 export type TraceEvent =
   | {
-      type: "span_start";
+      type: 'span_start';
       timestamp: string;
       runId: RunId;
       spanId: SpanId;
@@ -17,7 +17,7 @@ export type TraceEvent =
       metadata?: Record<string, unknown>;
     }
   | {
-      type: "span_end";
+      type: 'span_end';
       timestamp: string;
       runId: RunId;
       spanId: SpanId;
@@ -30,7 +30,7 @@ export type TraceEvent =
       tokens?: { input?: number; output?: number };
     }
   | {
-      type: "llm_call";
+      type: 'llm_call';
       timestamp: string;
       runId: RunId;
       spanId: SpanId;
@@ -44,7 +44,7 @@ export type TraceEvent =
       costUsd?: number;
     }
   | {
-      type: "tool_call";
+      type: 'tool_call';
       timestamp: string;
       runId: RunId;
       spanId: SpanId;
@@ -54,15 +54,15 @@ export type TraceEvent =
       error?: string;
     }
   | {
-      type: "validation_error";
+      type: 'validation_error';
       timestamp: string;
       runId: RunId;
       spanId: SpanId;
-      direction: "input" | "output";
+      direction: 'input' | 'output';
       issues: unknown;
     }
   | {
-      type: "artifact";
+      type: 'artifact';
       timestamp: string;
       runId: RunId;
       spanId: SpanId;
@@ -70,7 +70,7 @@ export type TraceEvent =
       data: unknown;
     }
   | {
-      type: "event";
+      type: 'event';
       timestamp: string;
       runId: RunId;
       spanId: SpanId;
@@ -88,7 +88,7 @@ export class JsonlTraceSink implements TraceSink {
 
   constructor(filePath: string) {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    this.stream = fs.createWriteStream(filePath, { flags: "a" });
+    this.stream = fs.createWriteStream(filePath, { flags: 'a' });
   }
 
   write(event: TraceEvent): void {
@@ -105,7 +105,7 @@ export class Trace {
     private readonly runId: RunId,
     private readonly sink: TraceSink,
     private readonly spanId: SpanId,
-    private readonly parentSpanId?: SpanId,
+    private readonly parentSpanId?: SpanId
   ) {}
 
   get id(): SpanId {
@@ -120,9 +120,9 @@ export class Trace {
     return this.runId;
   }
   child(name: string, meta?: Record<string, unknown>): Trace {
-    const childSpanId = createSpanId();
+    const childSpanId = randomUUID();
     const start: TraceEvent = {
-      type: "span_start",
+      type: 'span_start',
       timestamp: new Date().toISOString(),
       runId: this.runId,
       spanId: childSpanId,
@@ -140,26 +140,26 @@ export class Trace {
     try {
       const result = await fn();
       const end: TraceEvent = {
-      type: "span_end",
-      timestamp: new Date().toISOString(),
-      runId: this.runId,
-      spanId: spanTrace.id,
-      parentSpanId: spanTrace.parentId,
-      name,
-      durationMs: Date.now() - startTs,
-    };
+        type: 'span_end',
+        timestamp: new Date().toISOString(),
+        runId: this.runId,
+        spanId: spanTrace.id,
+        parentSpanId: spanTrace.parentId,
+        name,
+        durationMs: Date.now() - startTs,
+      };
       this.sink.write(end);
       return result;
     } catch (err: any) {
       const end: TraceEvent = {
-      type: "span_end",
-      timestamp: new Date().toISOString(),
-      runId: this.runId,
-      spanId: spanTrace.id,
-      parentSpanId: spanTrace.parentId,
-      name,
-      durationMs: Date.now() - startTs,
-      error: err?.message ?? String(err),
+        type: 'span_end',
+        timestamp: new Date().toISOString(),
+        runId: this.runId,
+        spanId: spanTrace.id,
+        parentSpanId: spanTrace.parentId,
+        name,
+        durationMs: Date.now() - startTs,
+        error: err?.message ?? String(err),
       };
       this.sink.write(end);
       throw err;
@@ -168,7 +168,7 @@ export class Trace {
 
   event(name: string, metadata?: Record<string, unknown>): void {
     this.sink.write({
-      type: "event",
+      type: 'event',
       timestamp: new Date().toISOString(),
       runId: this.runId,
       spanId: this.spanId,
@@ -179,7 +179,7 @@ export class Trace {
 
   artifact(name: string, data: unknown): void {
     this.sink.write({
-      type: "artifact",
+      type: 'artifact',
       timestamp: new Date().toISOString(),
       runId: this.runId,
       spanId: this.spanId,
@@ -215,12 +215,12 @@ export class InMemoryToolRegistry implements ToolRegistry {
   async call(name: string, ctx: Ctx, input: unknown): Promise<unknown> {
     const tool = this.tools.get(name);
     if (!tool) throw new ToolError(`Tool not found: ${name}`);
-    const validatedInput = validateWithZod(tool.input, input, "input", ctx.trace, ctx.spanId);
+    const validatedInput = validateWithZod(tool.input, input, 'input', ctx.trace, ctx.spanId);
     try {
       const output = await tool.invoke(ctx, validatedInput);
-      const validatedOutput = validateWithZod(tool.output, output, "output", ctx.trace, ctx.spanId);
+      const validatedOutput = validateWithZod(tool.output, output, 'output', ctx.trace, ctx.spanId);
       ctx.trace.emit({
-        type: "tool_call",
+        type: 'tool_call',
         timestamp: new Date().toISOString(),
         runId: ctx.runId,
         spanId: ctx.spanId,
@@ -231,7 +231,7 @@ export class InMemoryToolRegistry implements ToolRegistry {
       return validatedOutput;
     } catch (err: any) {
       ctx.trace.emit({
-        type: "tool_call",
+        type: 'tool_call',
         timestamp: new Date().toISOString(),
         runId: ctx.runId,
         spanId: ctx.spanId,
@@ -246,7 +246,7 @@ export class InMemoryToolRegistry implements ToolRegistry {
 
 export interface LLMGenerateArgs {
   model: string;
-  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
   schema?: ZodTypeAny;
   temperature?: number;
   maxTokens?: number;
@@ -277,7 +277,7 @@ export interface Ctx {
 
 export interface Policies {
   repairAttempts?: number;
-  onValidationError?: "fail" | "skip";
+  onValidationError?: 'fail' | 'skip';
 }
 
 export interface Cache {
@@ -293,7 +293,7 @@ export class RuntimeCtx implements Ctx {
     public readonly llm: LLMClient,
     public readonly tools: ToolRegistry,
     public readonly cache?: Cache,
-    public readonly policies?: Policies,
+    public readonly policies?: Policies
   ) {}
 
   child(stepName: string, meta?: Record<string, unknown>): Ctx {
@@ -319,7 +319,7 @@ export interface Workflow<I, O> {
 export interface RunRecord {
   runId: RunId;
   target: string;
-  status: "success" | "failure";
+  status: 'success' | 'failure';
   startedAt: string;
   endedAt: string;
   costUsd?: number;
@@ -328,20 +328,29 @@ export interface RunRecord {
 }
 
 export class ValidationError extends Error {
-  constructor(public readonly issues: unknown, message?: string) {
-    super(message ?? "Validation failed");
+  constructor(
+    public readonly issues: unknown,
+    message?: string
+  ) {
+    super(message ?? 'Validation failed');
   }
 }
 
 export class ToolError extends Error {}
 
-function validateWithZod<T>(schema: z.ZodType<T>, value: unknown, direction: "input" | "output", trace: Trace, spanId: SpanId): T {
+function validateWithZod<T>(
+  schema: z.ZodType<T>,
+  value: unknown,
+  direction: 'input' | 'output',
+  trace: Trace,
+  spanId: SpanId
+): T {
   const result = schema.safeParse(value);
   if (!result.success) {
     trace.emit({
-      type: "validation_error",
+      type: 'validation_error',
       timestamp: new Date().toISOString(),
-      runId: trace.run ?? "unknown",
+      runId: trace.run ?? 'unknown',
       spanId,
       direction,
       issues: result.error.issues,
@@ -351,14 +360,6 @@ function validateWithZod<T>(schema: z.ZodType<T>, value: unknown, direction: "in
   return result.data;
 }
 
-function createSpanId(): SpanId {
-  return randomUUID();
-}
-
-function createRunId(): RunId {
-  return randomUUID();
-}
-
 export function defineStep<I, O>(step: Step<I, O>): Step<I, O> {
   const originalRun = step.run;
   return {
@@ -366,12 +367,12 @@ export function defineStep<I, O>(step: Step<I, O>): Step<I, O> {
     async run(ctx: Ctx, input: I): Promise<O> {
       const spanCtx = ctx.child(step.name);
       const startedAt = Date.now();
-      const validatedInput = validateWithZod(step.input, input, "input", spanCtx.trace, spanCtx.spanId);
+      const validatedInput = validateWithZod(step.input, input, 'input', spanCtx.trace, spanCtx.spanId);
       try {
         const result = await originalRun(spanCtx, validatedInput);
-        const validatedOutput = validateWithZod(step.output, result, "output", spanCtx.trace, spanCtx.spanId);
+        const validatedOutput = validateWithZod(step.output, result, 'output', spanCtx.trace, spanCtx.spanId);
         spanCtx.trace.emit({
-          type: "span_end",
+          type: 'span_end',
           timestamp: new Date().toISOString(),
           runId: spanCtx.trace.run,
           spanId: spanCtx.spanId,
@@ -382,7 +383,7 @@ export function defineStep<I, O>(step: Step<I, O>): Step<I, O> {
         return validatedOutput;
       } catch (err: any) {
         spanCtx.trace.emit({
-          type: "span_end",
+          type: 'span_end',
           timestamp: new Date().toISOString(),
           runId: spanCtx.trace.run,
           spanId: spanCtx.spanId,
@@ -404,12 +405,12 @@ export function defineWorkflow<I, O>(workflow: Workflow<I, O>): Workflow<I, O> {
     async run(ctx: Ctx, input: I): Promise<O> {
       const spanCtx = ctx.child(workflow.name);
       const startedAt = Date.now();
-      const validatedInput = validateWithZod(workflow.input, input, "input", spanCtx.trace, spanCtx.spanId);
+      const validatedInput = validateWithZod(workflow.input, input, 'input', spanCtx.trace, spanCtx.spanId);
       try {
         const result = await originalRun(spanCtx, validatedInput);
-        const validatedOutput = validateWithZod(workflow.output, result, "output", spanCtx.trace, spanCtx.spanId);
+        const validatedOutput = validateWithZod(workflow.output, result, 'output', spanCtx.trace, spanCtx.spanId);
         spanCtx.trace.emit({
-          type: "span_end",
+          type: 'span_end',
           timestamp: new Date().toISOString(),
           runId: spanCtx.trace.run,
           spanId: spanCtx.spanId,
@@ -420,7 +421,7 @@ export function defineWorkflow<I, O>(workflow: Workflow<I, O>): Workflow<I, O> {
         return validatedOutput;
       } catch (err: any) {
         spanCtx.trace.emit({
-          type: "span_end",
+          type: 'span_end',
           timestamp: new Date().toISOString(),
           runId: spanCtx.trace.run,
           spanId: spanCtx.spanId,
@@ -442,16 +443,19 @@ export function createRuntime(options: {
   cache?: Cache;
   policies?: Policies;
 }) {
-  const traceDir = options.trace?.directory ?? path.join(process.cwd(), "traces");
+  const traceDir = options.trace?.directory ?? path.join(process.cwd(), 'traces');
   const defaultTools = options.tools ?? new InMemoryToolRegistry();
 
-  async function run<TInput, TOutput>(target: Step<TInput, TOutput> | Workflow<TInput, TOutput>, input: TInput): Promise<{ output: TOutput; record: RunRecord }> {
-    const runId = createRunId();
+  async function run<TInput, TOutput>(
+    target: Step<TInput, TOutput> | Workflow<TInput, TOutput>,
+    input: TInput
+  ): Promise<{ output: TOutput; record: RunRecord }> {
+    const runId = randomUUID();
     const sink = options.trace?.sink ?? new JsonlTraceSink(path.join(traceDir, `${runId}.jsonl`));
-    const rootSpanId = createSpanId();
+    const rootSpanId = randomUUID();
     const trace = new Trace(runId, sink, rootSpanId);
     trace.emit({
-      type: "span_start",
+      type: 'span_start',
       timestamp: new Date().toISOString(),
       runId,
       spanId: rootSpanId,
@@ -460,13 +464,13 @@ export function createRuntime(options: {
 
     const ctx = new RuntimeCtx(runId, rootSpanId, trace, options.llm, defaultTools, options.cache, options.policies);
     const startedAt = Date.now();
-    let status: RunRecord["status"] = "success";
+    let status: RunRecord['status'] = 'success';
     try {
-      const validatedInput = validateWithZod(target.input, input, "input", trace, rootSpanId);
+      const validatedInput = validateWithZod(target.input, input, 'input', trace, rootSpanId);
       const output = await target.run(ctx, validatedInput);
-      const validatedOutput = validateWithZod(target.output, output, "output", trace, rootSpanId);
+      const validatedOutput = validateWithZod(target.output, output, 'output', trace, rootSpanId);
       trace.emit({
-        type: "span_end",
+        type: 'span_end',
         timestamp: new Date().toISOString(),
         runId,
         spanId: rootSpanId,
@@ -484,9 +488,9 @@ export function createRuntime(options: {
       sink.close();
       return { output: validatedOutput, record };
     } catch (err: any) {
-      status = "failure";
+      status = 'failure';
       trace.emit({
-        type: "span_end",
+        type: 'span_end',
         timestamp: new Date().toISOString(),
         runId,
         spanId: rootSpanId,
