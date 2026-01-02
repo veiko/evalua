@@ -1,0 +1,18 @@
+{
+  "name": "@pkg/core",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}

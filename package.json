@@ -12,10 +12,17 @@
   },
   "license": "MIT",
   "author": "Veronica Carrillo Marquez <veikocm@gmail.com>",
+  "private": true,
   "type": "module",
-  "main": "index.js",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -b",
+    "test": "yarn build"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
   },
   "packageManager": "yarn@4.9.2"
 }

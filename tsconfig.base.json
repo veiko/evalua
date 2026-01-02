@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2020"],
+    "strict": true,
+    "declaration": true,
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@pkg/core": ["packages/core/src"],
+      "@pkg/llm": ["packages/llm/src"],
+      "@pkg/tools": ["packages/tools/src"],
+      "@pkg/eval": ["packages/eval/src"],
+      "@pkg/cli": ["packages/cli/src"]
+    }
+  }
+}

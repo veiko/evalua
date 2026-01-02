@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "module": "CommonJS",
+    "moduleResolution": "Node"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../core" },
+    { "path": "../llm" },
+    { "path": "../eval" }
+  ]
+}
