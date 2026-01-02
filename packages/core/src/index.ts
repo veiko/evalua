@@ -40,7 +40,7 @@ export type TraceEvent =
       raw?: unknown;
       parsed?: unknown;
       error?: string;
-      tokens?: { input?: number; output?: number };
+      tokens?: { in?: number; output?: number };
       costUsd?: number;
     }
   | {
