@@ -1,5 +1,5 @@
 {
-  "name": "@pkg/cli",
+  "name": "@evalua/cli",
   "version": "0.0.1",
   "bin": {
     "evalua": "dist/index.js"
@@ -10,7 +10,7 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
-    "zod": "^3.23.8",
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "zod": "^3.23.8"
   }
 }

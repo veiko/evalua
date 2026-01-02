@@ -2,12 +2,14 @@
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { createRuntime } from "@pkg/core";
-import { runEval } from "@pkg/eval";
-import { createEchoLLM } from "@pkg/llm";
+import { createRuntime } from "@evalua/core";
+import { runEval } from "@evalua/eval";
+import { createEchoLLM } from "@evalua/llm";
 
 const program = new Command();
-program.name("evalua").description("Evaluation-driven agentic workflow toolkit");
+program
+  .name("evalua")
+  .description("Evaluation-driven agentic workflow toolkit");
 
 program
   .command("run")
@@ -15,9 +17,12 @@ program
   .option("--input <file>", "JSON file with input")
   .action(async (target, options) => {
     const mod = await import(path.resolve(target));
-    const exported = mod.default ?? mod.workflow ?? mod.step ?? Object.values(mod)[0];
+    const exported =
+      mod.default ?? mod.workflow ?? mod.step ?? Object.values(mod)[0];
     if (!exported) throw new Error("No export found in target module");
-    const input = options.input ? JSON.parse(fs.readFileSync(options.input, "utf-8")) : {};
+    const input = options.input
+      ? JSON.parse(fs.readFileSync(options.input, "utf-8"))
+      : {};
     const runtime = createRuntime({ llm: createEchoLLM() });
     const { output, record } = await runtime.run(exported as any, input);
     console.log(JSON.stringify({ output, record }, null, 2));

@@ -1,4 +1,4 @@
-import { Step, Workflow } from "@pkg/core";
+import { Step, Workflow } from "@evalua/core";
 
 export type Case<I> = {
   id: string;
@@ -54,7 +54,10 @@ export type EvalRunResult = {
   passed: boolean;
 };
 
-export async function runEval<I, O>(spec: EvalSpec<I, O>, runtime: { run: (target: any, input: any) => Promise<{ output: O }> }): Promise<EvalRunResult> {
+export async function runEval<I, O>(
+  spec: EvalSpec<I, O>,
+  runtime: { run: (target: any, input: any) => Promise<{ output: O }> }
+): Promise<EvalRunResult> {
   const cases: EvalCaseResult[] = [];
   const aggregates: Record<string, number[]> = {};
   for (const c of spec.dataset.cases) {
@@ -64,7 +67,12 @@ export async function runEval<I, O>(spec: EvalSpec<I, O>, runtime: { run: (targe
     const artifacts: Record<string, any>[] = [];
 
     for (const judge of spec.judges) {
-      const score = await judge({ input: c.input, output, expected: c.expected, trace: {} });
+      const score = await judge({
+        input: c.input,
+        output,
+        expected: c.expected,
+        trace: {},
+      });
       Object.entries(score.metrics).forEach(([k, v]) => {
         aggregates[k] = aggregates[k] ?? [];
         aggregates[k].push(v);
@@ -74,7 +82,12 @@ export async function runEval<I, O>(spec: EvalSpec<I, O>, runtime: { run: (targe
       if (score.artifacts) artifacts.push(score.artifacts);
     }
 
-    cases.push({ id: c.id, metrics, notes: notes.length ? notes : undefined, artifacts: artifacts.length ? artifacts : undefined });
+    cases.push({
+      id: c.id,
+      metrics,
+      notes: notes.length ? notes : undefined,
+      artifacts: artifacts.length ? artifacts : undefined,
+    });
   }
 
   const aggregateSummary: Record<string, number> = {};
@@ -82,10 +95,12 @@ export async function runEval<I, O>(spec: EvalSpec<I, O>, runtime: { run: (targe
     aggregateSummary[k] = values.reduce((a, b) => a + b, 0) / values.length;
   });
 
-  const passed = Object.entries(spec.thresholds).every(([metric, threshold]) => {
-    const achieved = aggregateSummary[metric];
-    return achieved !== undefined && achieved >= threshold;
-  });
+  const passed = Object.entries(spec.thresholds).every(
+    ([metric, threshold]) => {
+      const achieved = aggregateSummary[metric];
+      return achieved !== undefined && achieved >= threshold;
+    }
+  );
 
   return {
     name: spec.name,
