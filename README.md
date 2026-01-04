@@ -2,6 +2,12 @@
 
 LLM-native workflows and evals with zod-validated steps, runtime tracing, and caching.
 
+Evalua helps you build and ship LLM features with guardrails:
+- Define typed steps/workflows with zod schemas so prompts and outputs stay predictable.
+- Run against multiple providers (OpenAI today; Anthropic or others by swapping the client).
+- Cache and trace runs to debug prompt changes quickly.
+- Practice eval-driven development (EDD): write datasets + judges + thresholds, run them in CI, and iterate until they pass.
+
 ## Getting started (new project)
 1) Install packages:
 ```bash
@@ -111,6 +117,11 @@ export default defineEval({
 });
 ```
 Then run `yourpkg eval summarize:minimal` (or script it via `@evalua/cli`).
+
+## Judges and reuse
+- Judges are plain functions that score outputs. You can write custom logic or reuse helpers.
+- A shared helper, `createTokenPresenceJudge` (`packages/eval/src/judges/tokenPresence.ts`), checks whether required tokens appear in a string (useful for HTML/JS/text).
+- Custom judges remain fully supported; mix and match them per eval.
 
 ## Repo examples
 - A runnable summarization example lives in `examples/summarize` (workflow + eval). After a root `yarn install`, run `yarn --cwd examples/summarize workflow` to generate a summary and `yarn --cwd examples/summarize eval` to execute the eval.

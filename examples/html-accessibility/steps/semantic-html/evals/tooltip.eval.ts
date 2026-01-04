@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,39 +8,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '../../public');
 const loadPublic = (file: string) => fs.readFileSync(path.join(publicDir, file), 'utf-8');
 
-type SemanticInput = z.infer<typeof semanticHtmlWorkflow.input>;
-type SemanticOutput = z.infer<typeof semanticHtmlWorkflow.output>;
+type SemanticInput = typeof semanticHtmlWorkflow.input._type;
+type SemanticOutput = typeof semanticHtmlWorkflow.output._type;
 
-const legacyDataset: Dataset<SemanticInput> = {
-  name: 'html-accessibility:cta',
+const tooltipDataset: Dataset<SemanticInput> = {
+  name: 'html-accessibility:tooltip',
   cases: [
     {
-      id: 'clickable-div-to-button',
-      input: {
-        uxDescription:
-          'A primary call-to-action labeled "Start evaluation" should look and behave like a button. It must be keyboard accessible and update a status region as the user starts.',
-        files: [
-          {
-            path: 'public/index.html',
-            kind: 'html',
-            content: loadPublic('cta.html'),
-          },
-          {
-            path: 'public/cta.js',
-            kind: 'js',
-            content: loadPublic('cta.js'),
-          },
-        ],
-      },
-      expected: {
-        htmlPath: 'public/index.html',
-        scriptPath: 'public/cta.js',
-        htmlMustContain: ['<button', 'type="button"', 'aria-live="polite"'],
-        scriptMustContainAny: ['keydown', 'Enter', 'Space', 'click'],
-      },
-    },
-    {
-      id: 'tooltip-div-to-button',
+      id: 'tooltip-div-to-control',
       input: {
         uxDescription:
           'An info icon should present a tooltip explaining data collection. It must be discoverable by screen readers, toggle with keyboard focus/Enter/Space, and hide on Escape or blur.',
@@ -50,11 +24,13 @@ const legacyDataset: Dataset<SemanticInput> = {
             path: 'public/index.html',
             kind: 'html',
             content: loadPublic('tooltip.html'),
+            description: 'Info icon is a div, tooltip markup is hidden via CSS classes only.',
           },
           {
             path: 'public/tooltip.js',
             kind: 'js',
             content: loadPublic('tooltip.js'),
+            description: 'Toggles tooltip on hover/click only; lacks keyboard and aria wiring.',
           },
         ],
       },
@@ -62,7 +38,7 @@ const legacyDataset: Dataset<SemanticInput> = {
         htmlPath: 'public/index.html',
         scriptPath: 'public/tooltip.js',
         htmlMustContain: ['role="tooltip"', 'aria-describedby', '<button'],
-        scriptMustContainAny: ['keydown', 'focus', 'blur', 'Escape', 'Space', 'Enter'],
+        scriptMustContainAny: ['keydown', 'focus', 'blur', 'escape', 'space', 'enter'],
       },
     },
   ],
@@ -81,7 +57,7 @@ const htmlRequirementsJudge = createTokenPresenceJudge<SemanticInput, SemanticOu
 const scriptRequirementsJudge = createTokenPresenceJudge<SemanticInput, SemanticOutput>({
   metric: 'script_requirements',
   content: ({ output, expected }) => {
-    const scriptPath = (expected as any)?.scriptPath ?? 'public/cta.js';
+    const scriptPath = (expected as any)?.scriptPath ?? 'public/tooltip.js';
     const scriptFile = output.files.find(file => file.path === scriptPath);
     return {
       text: scriptFile?.content ?? '',
@@ -92,10 +68,10 @@ const scriptRequirementsJudge = createTokenPresenceJudge<SemanticInput, Semantic
   normalize: value => value.toLowerCase(),
 });
 
-export const htmlAccessibilityEval = defineEval({
-  name: 'html_accessibility_eval',
+export const htmlAccessibilityTooltipEval = defineEval({
+  name: 'html_accessibility_tooltip_eval',
   target: semanticHtmlWorkflow,
-  dataset: legacyDataset,
+  dataset: tooltipDataset,
   judges: [htmlRequirementsJudge, scriptRequirementsJudge],
   thresholds: {
     html_requirements: 0.9,
@@ -103,4 +79,4 @@ export const htmlAccessibilityEval = defineEval({
   },
 });
 
-export default htmlAccessibilityEval;
+export default htmlAccessibilityTooltipEval;

@@ -49,11 +49,11 @@ export type EvalRunResult = {
   passed: boolean;
 };
 
-export * from './judges/index.js';
+export * from './judges';
 
 export async function runEval<I, O>(
   spec: EvalSpec<I, O>,
-  runtime: { run: (target: any, input: any) => Promise<{ output: O }> }
+  runtime: { run: (target: any, input: any) => Promise<{ output: O }> },
 ): Promise<EvalRunResult> {
   const cases: EvalCaseResult[] = [];
   const aggregates: Record<string, number[]> = {};
