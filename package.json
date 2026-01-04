@@ -16,6 +16,7 @@
   "type": "module",
   "workspaces": [
     "packages/*",
+    "examples/html-accessibility",
     "examples/summarize"
   ],
   "scripts": {

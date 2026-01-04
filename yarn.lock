@@ -240,6 +240,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@evalua/html-accessibility@workspace:examples/html-accessibility":
+  version: 0.0.0-use.local
+  resolution: "@evalua/html-accessibility@workspace:examples/html-accessibility"
+  dependencies:
+    "@evalua/core": "workspace:*"
+    "@evalua/llm": "workspace:*"
+    dotenv: "npm:^16.4.7"
+    tsx: "npm:^4.19.2"
+    zod: "npm:^3.23.8"
+  languageName: unknown
+  linkType: soft
+
 "@evalua/llm@workspace:*, @evalua/llm@workspace:packages/llm":
   version: 0.0.0-use.local
   resolution: "@evalua/llm@workspace:packages/llm"

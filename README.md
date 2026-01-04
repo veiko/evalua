@@ -114,4 +114,5 @@ Then run `yourpkg eval summarize:minimal` (or script it via `@evalua/cli`).
 
 ## Repo examples
 - A runnable summarization example lives in `examples/summarize` (workflow + eval). After a root `yarn install`, run `yarn --cwd examples/summarize workflow` to generate a summary and `yarn --cwd examples/summarize eval` to execute the eval.
-- Local artifacts write to `examples/summarize/traces` and `examples/summarize/cache`; both are gitignored and safe to delete or point elsewhere.
+- An accessibility rewrite example lives in `examples/html-accessibility` and shows how to feed multiple files (HTML + JS) to the LLM to convert clickable divs into proper buttons. Run it with `yarn --cwd examples/html-accessibility workflow` and `yarn --cwd examples/html-accessibility eval`.
+- Local artifacts write to `examples/<example>/traces` and `examples/<example>/cache`; both are gitignored and safe to delete or point elsewhere.
