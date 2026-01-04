@@ -9,7 +9,7 @@ npm i @evalua/core @evalua/llm @evalua/eval zod
 npm i -D @evalua/cli typescript tsx
 ```
 
-2) Define a workflow (`src/workflows/summarize.ts`):
+2) Define a workflow (`src/steps/summarize.ts`):
 ```ts
 import { z } from 'zod';
 import { defineWorkflow, defineStep } from '@evalua/core';
@@ -50,7 +50,7 @@ export const summarizeWorkflow = defineWorkflow({
 import OpenAI from 'openai';
 import { createRuntime } from '@evalua/core';
 import { ProgrammableLLMClient } from '@evalua/llm';
-import { summarizeWorkflow } from './workflows/summarize';
+import { summarizeWorkflow } from './steps/summarize';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
@@ -85,7 +85,7 @@ Run it with `OPENAI_API_KEY=... npm run run:one`.
 ## Add an eval
 ```ts
 import { defineEval } from '@evalua/eval';
-import { summarizeWorkflow } from '../workflows/summarize';
+import { summarizeWorkflow } from '../steps/summarize';
 
 export default defineEval({
   name: 'summarize:minimal',
@@ -114,5 +114,5 @@ Then run `yourpkg eval summarize:minimal` (or script it via `@evalua/cli`).
 
 ## Repo examples
 - A runnable summarization example lives in `examples/summarize` (workflow + eval). After a root `yarn install`, run `yarn --cwd examples/summarize workflow` to generate a summary and `yarn --cwd examples/summarize eval` to execute the eval.
-- An accessibility rewrite example lives in `examples/html-accessibility` and shows how to feed multiple files (HTML + JS) to the LLM to convert clickable divs into proper buttons. Run it with `yarn --cwd examples/html-accessibility workflow` and `yarn --cwd examples/html-accessibility eval`.
+- An accessibility rewrite example lives in `examples/html-accessibility` and shows how to feed multiple files (HTML + JS) to the LLM to convert clickable divs into proper buttons and tooltips into accessible controls. Sample inputs live under `examples/html-accessibility/public`. Run it with `yarn --cwd examples/html-accessibility workflow` and `yarn --cwd examples/html-accessibility eval`.
 - Local artifacts write to `examples/<example>/traces` and `examples/<example>/cache`; both are gitignored and safe to delete or point elsewhere.

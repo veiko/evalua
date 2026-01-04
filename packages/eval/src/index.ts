@@ -49,6 +49,8 @@ export type EvalRunResult = {
   passed: boolean;
 };
 
+export * from './judges/index.js';
+
 export async function runEval<I, O>(
   spec: EvalSpec<I, O>,
   runtime: { run: (target: any, input: any) => Promise<{ output: O }> }

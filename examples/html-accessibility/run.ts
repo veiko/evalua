@@ -2,11 +2,11 @@ import 'dotenv/config';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { pathToFileURL } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import OpenAI from 'openai';
 import { Cache, createRuntime } from '@evalua/core';
 import { ProgrammableLLMClient } from '@evalua/llm';
-import { semanticHtmlWorkflow } from './workflows/semanticHtml';
+import { semanticHtmlWorkflow } from './steps/semantic-html';
 
 class FileCache implements Cache {
   constructor(private readonly baseDir: string) {
@@ -83,79 +83,78 @@ export function createOpenAIRuntime(options?: { apiKey?: string; cacheDir?: stri
 async function main() {
   const runtime = createOpenAIRuntime();
 
-  const legacyHtml = `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Evaluation CTA</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="page">
-      <div class="header">Ready to start your evaluation?</div>
-      <div class="content">Click the primary action below to begin.</div>
-      <div id="cta" class="cta primary" role="button" tabindex="0" aria-label="Start evaluation">
-        Start evaluation
-      </div>
-      <div id="status" class="status" aria-live="polite"></div>
-    </div>
-    <script src="./cta.js"></script>
-  </body>
-</html>`;
-
-  const legacyScript = `const cta = document.getElementById('cta');
-const status = document.getElementById('status');
-
-cta?.addEventListener('click', () => {
-  if (status) {
-    status.textContent = 'Preparing your evaluation...';
-  }
-});
-
-cta?.addEventListener('keypress', event => {
-  if (event.key === 'Enter') {
-    cta.click();
-  }
-});`;
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const publicDir = path.join(__dirname, 'public');
+  const loadPublic = (relativePath: string) => fs.readFileSync(path.join(publicDir, relativePath), 'utf-8');
 
   const uxDescription =
     'A single hero call-to-action labeled "Start evaluation" should look and behave like a primary button. It must be obviously clickable, keyboard accessible, and announce progress in the status area.';
 
-  const { output, record } = await runtime.run(semanticHtmlWorkflow, {
-    uxDescription,
-    files: [
-      {
-        path: 'public/index.html',
-        content: legacyHtml,
-        kind: 'html',
-        description: 'Legacy markup uses divs for everything, including the primary call-to-action.',
-      },
-      {
-        path: 'public/cta.js',
-        content: legacyScript,
-        kind: 'js',
-        description: 'Handles the click on the CTA and updates status text.',
-      },
-    ],
-  });
+  const tooltipUxDescription =
+    'An info icon should present a tooltip explaining data collection. It must be discoverable by screen readers, toggle with keyboard focus/Enter/Space, and hide on Escape or blur.';
 
-  console.log('Rewritten files:');
-  for (const file of output.files) {
-    console.log(`--- ${file.path} ---`);
-    console.log(file.content);
-    if (file.notes) {
-      console.log(`Notes: ${file.notes}`);
+  const scenarios = [
+    {
+      name: 'CTA button rewrite',
+      uxDescription,
+      files: [
+        {
+          path: 'public/index.html',
+          content: loadPublic('cta.html'),
+          kind: 'html',
+          description: 'Legacy markup uses divs for everything, including the primary call-to-action.',
+        },
+        {
+          path: 'public/cta.js',
+          content: loadPublic('cta.js'),
+          kind: 'js',
+          description: 'Handles the click on the CTA and updates status text.',
+        },
+      ],
+    },
+    {
+      name: 'Tooltip rewrite',
+      uxDescription: tooltipUxDescription,
+      files: [
+        {
+          path: 'public/index.html',
+          content: loadPublic('tooltip.html'),
+          kind: 'html',
+          description: 'Info icon is a div, tooltip markup is hidden via CSS classes only.',
+        },
+        {
+          path: 'public/tooltip.js',
+          content: loadPublic('tooltip.js'),
+          kind: 'js',
+          description: 'Toggles tooltip on hover/click only; lacks keyboard and aria wiring.',
+        },
+      ],
+    },
+  ];
+
+  for (const scenario of scenarios) {
+    const { output, record } = await runtime.run(semanticHtmlWorkflow, scenario);
+
+    console.log(`Scenario: ${scenario.name}`);
+    console.log('Rewritten files:');
+    for (const file of output.files) {
+      console.log(`--- ${file.path} ---`);
+      console.log(file.content);
+      if (file.notes) {
+        console.log(`Notes: ${file.notes}`);
+      }
+      console.log('');
     }
-    console.log('');
-  }
 
-  if (output.summary) {
-    console.log('Summary:');
-    console.log(output.summary);
-  }
+    if (output.summary) {
+      console.log('Summary:');
+      console.log(output.summary);
+    }
 
-  console.log('Run record:');
-  console.log(JSON.stringify(record, null, 2));
+    console.log('Run record:');
+    console.log(JSON.stringify(record, null, 2));
+    console.log('========================\n');
+  }
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {

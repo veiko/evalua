@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "workflow": "tsx run.ts",
-    "eval": "tsx evals/run.ts"
+    "eval": "tsx steps/semantic-html/evals/run.ts"
   },
   "devDependencies": {
     "@evalua/core": "workspace:*",

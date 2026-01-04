@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { Dataset, Judge, defineEval } from '@evalua/eval';
-import { summarizeWorkflow } from '../workflows/summarize.js';
+import { Dataset, Judge, defineEval, createTokenPresenceJudge } from '@evalua/eval';
+import { summarizeWorkflow } from '../steps/summarize.js';
 
 type SummarizeInput = z.infer<typeof summarizeWorkflow.input>;
 type SummarizeOutput = z.infer<typeof summarizeWorkflow.output>;
@@ -27,23 +27,12 @@ const summarizeTiny: Dataset<SummarizeInput> = {
   ],
 };
 
-const keyTermJudge: Judge<SummarizeInput, SummarizeOutput> = ({
-  output,
-  expected,
-}: {
-  output: SummarizeOutput;
-  expected?: unknown;
-}) => {
-  const terms = Array.isArray(expected) ? expected : [];
-  const normalizedSummary = output.summary.toLowerCase();
-  const matched = terms.filter(term => normalizedSummary.includes(String(term).toLowerCase()));
-  const score = terms.length ? matched.length / terms.length : 1;
-
-  return {
-    metrics: { key_terms: Number(score.toFixed(2)) },
-    notes: terms.length ? `Matched ${matched.length} of ${terms.length} key terms` : undefined,
-  };
-};
+const keyTermJudge = createTokenPresenceJudge<SummarizeInput, SummarizeOutput>({
+  metric: 'key_terms',
+  content: ({ output }) => output.summary,
+  tokens: ({ expected }) => (Array.isArray(expected) ? expected.map(String) : []),
+  normalize: value => value.toLowerCase(),
+});
 
 const brevityJudge: Judge<SummarizeInput, SummarizeOutput> = ({
   input,

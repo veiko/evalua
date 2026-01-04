@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { pathToFileURL } from 'url';
 import { runEval } from '@evalua/eval';
-import { createOpenAIRuntime } from '../run.js';
+import { createOpenAIRuntime } from '../../../run.js';
 import { htmlAccessibilityEval } from './html-accessibility.eval';
 
 async function main() {

@@ -6,7 +6,7 @@ import { pathToFileURL } from 'url';
 import OpenAI from 'openai';
 import { Cache, createRuntime } from '@evalua/core';
 import { ProgrammableLLMClient } from '@evalua/llm';
-import { summarizeWorkflow } from './workflows/summarize';
+import { summarizeWorkflow } from './steps/summarize';
 
 class FileCache implements Cache {
   constructor(private readonly baseDir: string) {
